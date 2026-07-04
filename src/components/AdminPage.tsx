@@ -26,10 +26,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/admin")({
-  component: AdminPageDefault,
-});
-
 export default function AdminPageDefault() { return <AdminPage />; }
 
 type Section = "home" | "apps" | "import" | "settings";
