@@ -50,7 +50,7 @@ function AdminPage() {
           <CardHeader><CardTitle>Acesso negado</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">Sua conta não é admin.</p>
-            <Button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth"); }} variant="outline">Sair</Button>
+<Button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); }} variant="outline">Sair</Button>
           </CardContent>
         </Card>
       </div>
