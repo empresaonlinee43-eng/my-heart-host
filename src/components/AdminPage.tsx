@@ -98,7 +98,7 @@ function AdminPage() {
           <button onClick={() => window.open("/", "_blank")} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">
             <ExternalLink className="w-4 h-4 text-muted-foreground" /> Ver site
           </button>
-          <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth"); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm hover:bg-destructive/10 hover:text-destructive transition-colors">
+<button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm hover:bg-destructive/10 hover:text-destructive transition-colors">
             <LogOut className="w-4 h-4" /> Sair
           </button>
         </div>
