@@ -1,83 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { MatrixRain } from "@/components/MatrixRain";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-function MatrixRain() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const chars =
-      "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/*_-=+#$%@";
-    const fontSize = 16;
-    let columns = Math.floor(width / fontSize);
-    let drops: number[] = Array(columns).fill(1);
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      columns = Math.floor(width / fontSize);
-      drops = Array(columns).fill(1);
-    };
-    window.addEventListener("resize", handleResize);
-
-    let raf = 0;
-    const draw = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.font = `${fontSize}px monospace`;
-      for (let i = 0; i < drops.length; i++) {
-        const text = chars.charAt(Math.floor(Math.random() * chars.length));
-        const x = i * fontSize;
-        const y = drops[i] * fontSize;
-
-        // brighter head
-        if (Math.random() > 0.975) {
-          ctx.fillStyle = "#d1ffd1";
-        } else {
-          ctx.fillStyle = "#00ff6a";
-        }
-        ctx.fillText(text, x, y);
-
-        if (y > height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 -z-10 h-full w-full"
-      aria-hidden
-    />
-  );
-}
+type Mode = "signin" | "signup";
 
 function AuthPage() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -108,10 +43,26 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      toast.success("ACCESS GRANTED");
-      navigate({ to: "/admin", replace: true });
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        toast.success("ACCESS GRANTED");
+        navigate({ to: "/admin", replace: true });
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/admin` },
+        });
+        if (error) throw error;
+        if (data.session) {
+          toast.success("OPERATOR REGISTERED :: JACKING IN");
+          navigate({ to: "/admin", replace: true });
+        } else {
+          toast.success("CHECK YOUR INBOX TO CONFIRM");
+          setMode("signin");
+        }
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "ACCESS DENIED");
     } finally {
@@ -119,10 +70,12 @@ function AuthPage() {
     }
   };
 
+  const title = mode === "signin" ? "ACCESS" : "REGISTER";
+  const cta = mode === "signin" ? "[ ENTER THE MATRIX ]" : "[ CREATE OPERATOR ]";
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-black font-mono text-[#00ff6a]">
       <MatrixRain />
-      {/* scanline + vignette overlays */}
       <div
         className="pointer-events-none fixed inset-0 -z-[5]"
         style={{
@@ -149,7 +102,6 @@ function AuthPage() {
                 "0 0 30px rgba(0,255,106,0.25), inset 0 0 20px rgba(0,255,106,0.08)",
             }}
           >
-            {/* terminal header */}
             <div className="flex items-center justify-between border-b border-[#00ff6a]/30 px-4 py-2 text-xs">
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#00ff6a]/70 shadow-[0_0_6px_#00ff6a]" />
@@ -166,11 +118,37 @@ function AuthPage() {
                 ))}
               </div>
 
+              {/* mode tabs */}
+              <div className="mb-5 grid grid-cols-2 gap-0 border border-[#00ff6a]/30 text-xs tracking-[0.25em]">
+                <button
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className={`py-2 transition ${
+                    mode === "signin"
+                      ? "bg-[#00ff6a]/15 text-[#00ff6a] shadow-[inset_0_0_12px_#00ff6a55]"
+                      : "text-[#00ff6a]/50 hover:text-[#00ff6a]/80"
+                  }`}
+                >
+                  LOGIN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className={`py-2 transition ${
+                    mode === "signup"
+                      ? "bg-[#00ff6a]/15 text-[#00ff6a] shadow-[inset_0_0_12px_#00ff6a55]"
+                      : "text-[#00ff6a]/50 hover:text-[#00ff6a]/80"
+                  }`}
+                >
+                  CRIAR CONTA
+                </button>
+              </div>
+
               <h1
                 className="mb-4 text-center text-3xl font-bold tracking-[0.35em]"
                 style={{ textShadow: "0 0 10px #00ff6a, 0 0 20px #00ff6a80" }}
               >
-                ACCESS
+                {title}
               </h1>
 
               <form onSubmit={submit} className="space-y-4 text-sm">
@@ -201,7 +179,7 @@ function AuthPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    autoComplete="current-password"
+                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
                     className="w-full border border-[#00ff6a]/40 bg-black/60 px-3 py-2 text-[#00ff6a] caret-[#00ff6a] outline-none placeholder:text-[#00ff6a]/30 focus:border-[#00ff6a] focus:shadow-[0_0_10px_#00ff6a80]"
                     placeholder="••••••••"
                   />
@@ -213,7 +191,7 @@ function AuthPage() {
                   className="group relative w-full border border-[#00ff6a] bg-[#00ff6a]/10 py-2.5 font-bold tracking-[0.3em] text-[#00ff6a] transition hover:bg-[#00ff6a]/20 hover:shadow-[0_0_20px_#00ff6a] disabled:opacity-50"
                   style={{ textShadow: "0 0 8px #00ff6a" }}
                 >
-                  {loading ? "AUTHENTICATING..." : "[ ENTER THE MATRIX ]"}
+                  {loading ? "PROCESSING..." : cta}
                 </button>
 
                 <div className="flex items-center gap-2 pt-2 text-[10px] opacity-60">
