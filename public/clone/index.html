@@ -809,7 +809,7 @@ async function downloadFile(){
       var parsed = new URL(url, window.location.origin);
       if(parsed.pathname.indexOf('/api/public/site-asset') === 0){
         var path = parsed.searchParams.get('path');
-        if(path) return 'https://kldindrrbnuycglafzwd.supabase.co/storage/v1/object/public/site-assets/' + path;
+        if(path) return 'https://qyxiirqhabfkohryrwkc.supabase.co/storage/v1/object/public/site-assets/' + path;
       }
     }catch(e){}
     return url;
@@ -1019,11 +1019,11 @@ async function downloadFile(){
 
   // Initial load from saved settings
   var requestStartedAt = Date.now();
-  var SUPABASE_URL = 'https://kldindrrbnuycglafzwd.supabase.co';
-  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZGluZHJyYm51eWNnbGFmendkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjMwMjgsImV4cCI6MjA5ODAzOTAyOH0.KfDJG49X71TZx3xaSLjgOWq3-eS6u36os3nj8AG0u3o';
+  var SUPABASE_URL = 'https://qyxiirqhabfkohryrwkc.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_ip0bLusYIo3qm_cDlilDAw_lsiJsyBA';
   try{
     fetch(SUPABASE_URL + '/rest/v1/site_settings?select=key,value,updated_at', {
-      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON },
+      headers: { apikey: SUPABASE_ANON },
       cache: 'no-store'
     }).then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){
       if(hasLivePreviewPayload || requestStartedAt < latestAppliedAt) return;
