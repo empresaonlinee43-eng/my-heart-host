@@ -809,7 +809,7 @@ async function downloadFile(){
       var parsed = new URL(url, window.location.origin);
       if(parsed.pathname.indexOf('/api/public/site-asset') === 0){
         var path = parsed.searchParams.get('path');
-        if(path) return 'https://qyxiirqhabfkohryrwkc.supabase.co/storage/v1/object/public/site-assets/' + path;
+        if(path) return 'https://nmqomhsrmvzaaezxkdru.supabase.co/storage/v1/object/public/site-assets/' + path;
       }
     }catch(e){}
     return url;
