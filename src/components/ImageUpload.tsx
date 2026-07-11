@@ -42,8 +42,11 @@ export function ImageUpload({ value, onChange, onUploaded, label = "Imagem", asp
     }
     setBusy(true);
     try {
+      const { data: userRes } = await supabase.auth.getUser();
+      const userId = userRes.user?.id;
+      if (!userId) throw new Error("Faça login novamente para enviar arquivos.");
       const ext = file.name.split(".").pop() ?? "png";
-      const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const path = `${userId}/uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await supabase.storage.from("site-assets").upload(path, file, {
         cacheControl: "3600",
         upsert: false,
