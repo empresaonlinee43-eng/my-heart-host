@@ -14,121 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      app_comments: {
+      app_projects: {
         Row: {
-          app_id: string
-          approved: boolean
-          author_name: string
-          body: string
           created_at: string
           id: string
-          rating: number | null
-        }
-        Insert: {
-          app_id: string
-          approved?: boolean
-          author_name: string
-          body: string
-          created_at?: string
-          id?: string
-          rating?: number | null
-        }
-        Update: {
-          app_id?: string
-          approved?: boolean
-          author_name?: string
-          body?: string
-          created_at?: string
-          id?: string
-          rating?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "app_comments_app_id_fkey"
-            columns: ["app_id"]
-            isOneToOne: false
-            referencedRelation: "apps"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      apps: {
-        Row: {
-          category: string | null
-          cover_url: string | null
-          created_at: string
-          description: string | null
-          developer: string | null
-          downloads: string | null
-          icon_url: string | null
-          id: string
+          is_public: boolean
           name: string
-          play_url: string | null
-          position: number
-          published: boolean
-          rating: number | null
-          screenshots: Json
+          owner_id: string
+          settings: Json
           slug: string
-          source_url: string | null
           updated_at: string
         }
         Insert: {
-          category?: string | null
-          cover_url?: string | null
           created_at?: string
-          description?: string | null
-          developer?: string | null
-          downloads?: string | null
-          icon_url?: string | null
           id?: string
-          name: string
-          play_url?: string | null
-          position?: number
-          published?: boolean
-          rating?: number | null
-          screenshots?: Json
+          is_public?: boolean
+          name?: string
+          owner_id: string
+          settings?: Json
           slug: string
-          source_url?: string | null
           updated_at?: string
         }
         Update: {
-          category?: string | null
-          cover_url?: string | null
           created_at?: string
-          description?: string | null
-          developer?: string | null
-          downloads?: string | null
-          icon_url?: string | null
           id?: string
+          is_public?: boolean
           name?: string
-          play_url?: string | null
-          position?: number
-          published?: boolean
-          rating?: number | null
-          screenshots?: Json
+          owner_id?: string
+          settings?: Json
           slug?: string
-          source_url?: string | null
           updated_at?: string
         }
         Relationships: []
       }
-      profiles: {
+      apps: {
         Row: {
           created_at: string
-          email: string | null
+          data: Json
           id: string
+          name: string
+          position: number
+          slug: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          email?: string | null
-          id: string
+          data?: Json
+          id?: string
+          name: string
+          position?: number
+          slug?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          email?: string | null
+          data?: Json
           id?: string
+          name?: string
+          position?: number
+          slug?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -186,7 +130,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -314,7 +258,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "moderator", "user"],
     },
   },
 } as const

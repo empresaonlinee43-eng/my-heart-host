@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import AdminPageDefault from "@/components/AdminPage";
+import SaasAdminPage from "@/components/SaasAdminPage";
 import { MatrixRain } from "@/components/MatrixRain";
 
 export const Route = createFileRoute("/admin")({
@@ -96,7 +96,7 @@ function AdminShell() {
         }
       `}</style>
       <div className="relative z-0">
-        <AdminPageDefault />
+        <SaasAdminPage />
       </div>
     </div>
   );

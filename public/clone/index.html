@@ -23,7 +23,7 @@ button{font:inherit;border:0;background:none;cursor:pointer;color:inherit}
 a{color:#01875f;text-decoration:none}
 
 /* ===== top bar ===== */
-.topbar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:#fff;position:sticky;top:0;z-index:50;border-bottom:1px solid #f1f3f4}
+.topbar{display:none;align-items:center;gap:16px;padding:10px 16px;background:#fff;position:sticky;top:0;z-index:50;border-bottom:1px solid #f1f3f4}
 .topbar .gp-logo{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
 .topbar .gp-logo svg{width:30px;height:30px;flex-shrink:0}
 .topbar .gp-logo span{font-family:'Google Sans',sans-serif;font-size:20px;font-weight:500;color:#5f6368;letter-spacing:.2px}
@@ -793,7 +793,8 @@ async function downloadFile(){
 /* ===== Lovable live-edit bridge =====
    Applies admin edits live (postMessage) and on initial load (fetch site_settings). */
 (function(){
-  var SETTINGS_CACHE_KEY = 'lovable:site-settings';
+  var projectSlug = new URLSearchParams(window.location.search).get('project') || '';
+  var SETTINGS_CACHE_KEY = projectSlug ? 'lovable:site-settings:' + projectSlug : 'lovable:site-settings';
   var SETTINGS_CHANNEL = 'lovable-site-settings';
   var latestAppliedAt = 0;
   var hasLivePreviewPayload = false;
@@ -809,7 +810,7 @@ async function downloadFile(){
       var parsed = new URL(url, window.location.origin);
       if(parsed.pathname.indexOf('/api/public/site-asset') === 0){
         var path = parsed.searchParams.get('path');
-        if(path) return 'https://kldindrrbnuycglafzwd.supabase.co/storage/v1/object/public/site-assets/' + path;
+        if(path) return 'https://nmqomhsrmvzaaezxkdru.supabase.co/storage/v1/object/public/site-assets/' + path;
       }
     }catch(e){}
     return url;
@@ -1019,21 +1020,30 @@ async function downloadFile(){
 
   // Initial load from saved settings
   var requestStartedAt = Date.now();
-  var SUPABASE_URL = 'https://kldindrrbnuycglafzwd.supabase.co';
-  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZGluZHJyYm51eWNnbGFmendkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjMwMjgsImV4cCI6MjA5ODAzOTAyOH0.KfDJG49X71TZx3xaSLjgOWq3-eS6u36os3nj8AG0u3o';
+  var SUPABASE_URL = 'https://nmqomhsrmvzaaezxkdru.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_TmNfoqQrtQGgB0D-TZxedw_McZ-2QL2';
   try{
-    fetch(SUPABASE_URL + '/rest/v1/site_settings?select=key,value,updated_at', {
-      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON },
+    var endpoint = projectSlug
+      ? SUPABASE_URL + '/rest/v1/app_projects?select=settings,updated_at&slug=eq.' + encodeURIComponent(projectSlug) + '&is_public=eq.true&limit=1'
+      : SUPABASE_URL + '/rest/v1/site_settings?select=key,value,updated_at';
+    fetch(endpoint, {
+      headers: { apikey: SUPABASE_ANON },
       cache: 'no-store'
     }).then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){
       if(hasLivePreviewPayload || requestStartedAt < latestAppliedAt) return;
       var settings = {};
       var latest = 0;
-      (rows || []).forEach(function(row){
-        settings[row.key] = row.value;
-        var t = Date.parse(row.updated_at || '') || 0;
-        if(t > latest) latest = t;
-      });
+      if(projectSlug){
+        var row = (rows || [])[0];
+        settings = row && row.settings && typeof row.settings === 'object' ? row.settings : {};
+        latest = Date.parse((row && row.updated_at) || '') || 0;
+      }else{
+        (rows || []).forEach(function(row){
+          settings[row.key] = row.value;
+          var t = Date.parse(row.updated_at || '') || 0;
+          if(t > latest) latest = t;
+        });
+      }
       if(hasPayloadKeys(settings)){
         applyMessage({ payload: settings, updatedAt: latest || Date.now() }, { persist:true });
       }else{
