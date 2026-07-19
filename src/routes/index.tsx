@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 function IndexPage() {
   return (
     <iframe
-      src="/clone/index.html"
+      src="/playstore/index.html"
       title="Playstore"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none", display: "block" }}
     />
